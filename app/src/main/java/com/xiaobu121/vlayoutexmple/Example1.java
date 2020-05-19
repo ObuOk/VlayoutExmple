@@ -45,7 +45,7 @@ public class Example1 extends AppCompatActivity {
         mDelegateAdapter = new DelegateAdapter(virtualLayoutManager);
         mRecycler_view.setLayoutManager(virtualLayoutManager);
         mRecycler_view.setAdapter(mDelegateAdapter);
-        mSubAdapter = (SubAdapter) new CreateAdapterHelper(
+        mSubAdapter = new CreateAdapterHelper<>(
                 Example1.SubAdapter.class,
                 mSubAdapter, this,
                 new LinearLayoutHelper(10),

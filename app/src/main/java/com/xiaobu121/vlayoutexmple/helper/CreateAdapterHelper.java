@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.alibaba.android.vlayout.DelegateAdapter;
 import com.alibaba.android.vlayout.LayoutHelper;
+import com.xiaobu121.vlayoutexmple.adapter.BaseDelegateAdapter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -15,10 +16,10 @@ import java.lang.reflect.TypeVariable;
  * created on: 2020-05-19 16:05
  * description:
  */
-public class CreateAdapterHelper {
+public class CreateAdapterHelper<T extends BaseDelegateAdapter> {
 
-    private final Class clz;
-    private final Object adapter;
+    private final Class<T> clz;
+    private final T adapter;
     private final Context context;
     private final LayoutHelper layoutHelper;
     private final DelegateAdapter delegateAdapter;
@@ -27,8 +28,8 @@ public class CreateAdapterHelper {
     private boolean isInnerClass;
 
     public CreateAdapterHelper(
-            Class clz,
-            Object adapter,
+            Class<T> clz,
+            T adapter,
             Context context,
             LayoutHelper layoutHelper,
             DelegateAdapter delegateAdapter,
@@ -54,7 +55,7 @@ public class CreateAdapterHelper {
      */
     public CreateAdapterHelper(
             Class clz,
-            Object adapter,
+            T adapter,
             Context context,
             LayoutHelper layoutHelper,
             DelegateAdapter delegateAdapter,
@@ -69,8 +70,8 @@ public class CreateAdapterHelper {
         this.itemViewType = itemViewType;
         this.outterClassCreater = outterClassCreater;
     }
-    public Object build() {
-        if (adapter == null) {
+    public T build() {
+        if (adapter == null || adapter.getDelegateAdapter() != delegateAdapter) {
             //视为内部类
             if (clz.getName().contains("$") &&
                     !Modifier.isStatic(clz.getModifiers())) {//非静态
@@ -86,15 +87,15 @@ public class CreateAdapterHelper {
         return adapter;
     }
 
-    private Object build(Class clz, Object... args) {
+    private T build(Class<T> clz, Object... args) {
         try {
             Constructor[] declaredConstructors = clz.getDeclaredConstructors();
             for (int i = 0; i < declaredConstructors.length; i ++) {
                 Constructor declaredConstructor = declaredConstructors[i];
                 Class[] parameterTypes = declaredConstructor.getParameterTypes();
                 if (parameterTypes.length == args.length) {
-                        declaredConstructor.setAccessible(true);
-                        return declaredConstructor.newInstance(args);
+                    declaredConstructor.setAccessible(true);
+                    return (T) declaredConstructor.newInstance(args);
                 }
             }
         } catch (IllegalAccessException e) {
